@@ -35,9 +35,9 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>xar</packaging>
   <scm>
-    <connection>scm:git:git://github.com/xwiki-contrib/hierarchymacro.git</connection>
-    <developerConnection>scm:git:git@github.com:xwiki-contrib/hierarchymacro.git</developerConnection>
-    <url>https://github.com/xwiki-contrib/hierarchymacro</url>
+    <connection>scm:git:git://github.com/xwiki-contrib/macro-hierarchy.git</connection>
+    <developerConnection>scm:git:git@github.com:xwiki-contrib/macro-hierarchy.git</developerConnection>
+    <url>https://github.com/xwiki-contrib/macro-hierarchy.git</url>
   </scm>
   <distributionManagement>
     <repository>
