@@ -30,7 +30,7 @@
     <version>3.5.1</version>
   </parent>
   <groupId>org.xwiki.contrib</groupId>
-  <artifactId>xwiki-hierarchymacro</artifactId>
+  <artifactId>xwiki-macro-hierarchy</artifactId>
   <name>XWiki Contrib - Hierarchy macro</name>
   <version>1.0-SNAPSHOT</version>
   <packaging>xar</packaging>
