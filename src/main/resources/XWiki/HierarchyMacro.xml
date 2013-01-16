@@ -11,8 +11,8 @@
 <customClass></customClass>
 <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
 <creationDate>1325372400000</creationDate>
-<date>1325372400000</date>
-<contentUpdateDate>1325372400000</contentUpdateDate>
+<date>1358352799000</date>
+<contentUpdateDate>1358352799000</contentUpdateDate>
 <version>1.1</version>
 <title>Hierarchy Macro</title>
 <template></template>
@@ -1161,6 +1161,18 @@ document.observe("xwiki:dom:loaded", function() {
   #end
   #set($where = $where + ')')
 #end
+#set($docLanguage = "$!xcontext.macro.params.documentLanguage")
+#if($docLanguage != '')
+  #if ($where.length() &gt; 0)
+    #set($where = $where + ' and ')
+  #end
+  #if($docLanguage == $xwiki.getXWikiPreference('default_language'))
+    #set($where = "${where} (doc.language = ? OR doc.language='') ")
+  #else
+    #set($where = "${where} doc.language = ? ")
+  #end
+  #set($discard = $paramsList.add($docLanguage))
+#end
 #if($where.length() &gt; 0)
   #set($where = " where ${where}")
 #end
@@ -2089,6 +2101,72 @@ document.observe("xwiki:dom:loaded", function() {
 </property>
 <property>
 <name>checkboxexcludes</name>
+</property>
+</object>
+<object>
+<class>
+<name>XWiki.WikiMacroParameterClass</name>
+<customClass></customClass>
+<customMapping></customMapping>
+<defaultViewSheet></defaultViewSheet>
+<defaultEditSheet></defaultEditSheet>
+<defaultWeb></defaultWeb>
+<nameField></nameField>
+<validationScript></validationScript>
+<defaultValue>
+<disabled>0</disabled>
+<name>defaultValue</name>
+<number>4</number>
+<prettyName>Parameter default value</prettyName>
+<size>30</size>
+<unmodifiable>0</unmodifiable>
+<classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+</defaultValue>
+<description>
+<disabled>0</disabled>
+<name>description</name>
+<number>2</number>
+<prettyName>Parameter description</prettyName>
+<rows>5</rows>
+<size>40</size>
+<unmodifiable>0</unmodifiable>
+<classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+</description>
+<mandatory>
+<disabled>0</disabled>
+<displayFormType>select</displayFormType>
+<displayType>yesno</displayType>
+<name>mandatory</name>
+<number>3</number>
+<prettyName>Parameter mandatory</prettyName>
+<unmodifiable>0</unmodifiable>
+<classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+</mandatory>
+<name>
+<disabled>0</disabled>
+<name>name</name>
+<number>1</number>
+<prettyName>Parameter name</prettyName>
+<size>30</size>
+<unmodifiable>0</unmodifiable>
+<classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+</name>
+</class>
+<name>XWiki.HierarchyMacro</name>
+<number>12</number>
+<className>XWiki.WikiMacroParameterClass</className>
+<guid>17d05af7-7d5e-4d65-ae6d-0d4ec6ad984c</guid>
+<property>
+<defaultValue></defaultValue>
+</property>
+<property>
+<description>This parameter's value is used to display a tree of documents in the desired language.</description>
+</property>
+<property>
+<mandatory>0</mandatory>
+</property>
+<property>
+<name>documentLanguage</name>
 </property>
 </object>
 <content>Document that defines the hierarchy macro, which displays and allows to edit the documents hierarchy in a specific space (the standard parent-child relation) along with a special information, children order, which is saved in each parent to allow ordering its children as set by the user when displayed with this macro (and whenever some code which is aware of this information uses it).
