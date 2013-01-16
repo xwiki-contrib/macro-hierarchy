@@ -11,8 +11,8 @@
 <customClass></customClass>
 <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
 <creationDate>1325372400000</creationDate>
-<date>1358352664000</date>
-<contentUpdateDate>1358352664000</contentUpdateDate>
+<date>1358352799000</date>
+<contentUpdateDate>1358352799000</contentUpdateDate>
 <version>1.1</version>
 <title>Hierarchy Macro</title>
 <template></template>
@@ -1177,7 +1177,6 @@ document.observe("xwiki:dom:loaded", function() {
   #set($where = " where ${where}")
 #end
 #set($sql = "$selectFrom $where $order")
-$sql
 ## get the results
 #set($resultDocs = $xwiki.search($sql, $paramsList))
 ## prepare the tree
