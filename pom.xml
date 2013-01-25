@@ -31,9 +31,10 @@
   </parent>
   <groupId>org.xwiki.contrib</groupId>
   <artifactId>xwiki-macro-hierarchy</artifactId>
-  <name>XWiki Contrib - Hierarchy macro</name>
+  <name>Hierarchy Macro</name>
   <version>1.1-SNAPSHOT</version>
   <packaging>xar</packaging>
+  <description>Displays and allows to manipulate the documents hierarchy in a space / on the wiki.</description>
   <scm>
     <connection>scm:git:git://github.com/xwiki-contrib/macro-hierarchy.git</connection>
     <developerConnection>scm:git:git@github.com:xwiki-contrib/macro-hierarchy.git</developerConnection>
