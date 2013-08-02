@@ -12,8 +12,8 @@
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <creationDate>1325372400000</creationDate>
-  <date>1358352799000</date>
-  <contentUpdateDate>1358352799000</contentUpdateDate>
+  <date>1375449227000</date>
+  <contentUpdateDate>1375449227000</contentUpdateDate>
   <version>1.1</version>
   <title>Hierarchy Macro</title>
   <template/>
@@ -552,8 +552,13 @@ XWiki.ToggleHierarchy = Class.create({
     if (parentLi) {
       var sublist = parentLi.down('ul');
       if (sublist &amp;&amp; sublist.parentNode == parentLi) {
-        sublist.toggle();
-        handler.toggleClassName('open'); 
+        if(handler.hasClassName('open') &amp;&amp; !sublist.hasClassName('hidden')){
+          handler.removeClassName('open');
+          sublist.addClassName('hidden');
+        }else if(!handler.hasClassName('open') &amp;&amp; sublist.hasClassName('hidden')){
+          handler.addClassName('open');
+          sublist.removeClassName('hidden');
+        }
       }
     }
   },
@@ -985,8 +990,23 @@ document.observe("xwiki:dom:loaded", function() {
     &lt;div class="hierarchynode"&gt;
       ## display the toggle button only if it has children list and we're not in export action (exporting pdf)
       ## actually we should put this button from js, when loading the handlers, since it can only be used with js. FIXME: move
+      #set($classNameArray = ['togglenodehandler', 'hidden', 'open'])
+      #if($pathToRootNode.size() &gt; 0 &amp;&amp; !$pathToRootNode.contains($parent))
+        #set($discard = $classNameArray.addAll(['togglenodehandler']))
+      #end
       #if($showChildrenList &amp;&amp; $context.action != "export")
-        &lt;span class="togglenodehandler hidden open"&gt;toggle&lt;/span&gt;
+        #set($classAttributeValue = "togglenodehandler hidden")
+        ## if the pathToRootNode array contains at least 1 element then the tree must be collapsed except for one node
+        ## the array holds the path from that node to the root node
+        ## if the current processed node, @$parent, is in the array which holds the ancestor hierarchy of the document specified in the @$openNode parameter 
+        ## and @$collapsed is false, we display it
+        #if(($pathToRootNode.size() &gt; 0 &amp;&amp; $pathToRootNode.contains($parent)) || !$collapsed)
+          #set($classAttributeValue = "${classAttributeValue} open")
+        ## otherwise, if there are no elements in the @$pathToRootNode array and there is no explicit collapse set, then display the nodes expanded
+        #elseif($pathToRootNode.size() &amp;&amp; !$collapsed)
+          #set($classAttributeValue = "${classAttributeValue} open")
+        #end
+        &lt;span class="$classAttributeValue"&gt;toggle&lt;/span&gt;
       #else
         ## for other cases, display anyway a toggle span, for layouting purposes
         &lt;span class="togglenodehandlerplaceholder"&gt;&lt;/span&gt;
@@ -1008,7 +1028,7 @@ document.observe("xwiki:dom:loaded", function() {
       ## don't display link if we're in edit mode since dragging a link is a pain since you'll too often click it. 
       ## Don't display link if doesn't have right to view
       #if(!$editable &amp;&amp; !$reorderable &amp;&amp; $hasRightToView)&lt;a href="${xwiki.getURL($parent)}"&gt;#end
-        &lt;span class="documentlabel"&gt;${titleToDisplay}&lt;/span&gt; #if(!$hasRightToView)*#end
+        &lt;span class="documentlabel"&gt;#evaluate($titleToDisplay)&lt;/span&gt; #if(!$hasRightToView)*#end
       #if(!$editable &amp;&amp; !$reorderable &amp;&amp; $hasRightToView)&lt;/a&gt;#end
       ## display reference of this element, to be able to catch it with js and perform the operation
       &lt;input type="hidden" name="docreference" value="$parent" /&gt;
@@ -1031,7 +1051,12 @@ document.observe("xwiki:dom:loaded", function() {
     &lt;/div&gt;
     ## and now the children
     #if ($showChildrenList)
-      &lt;ul&gt;
+      #set($ulClassAttribute = '')
+      ## we hide the sublists if the node is not on the hierarchical path, not contained in the ancestor array of the document @$openNode, or if the collapse is set explicitly
+      #if(($pathToRootNode.size() &gt; 0 &amp;&amp; !$pathToRootNode.contains($parent)) || $collapsed)
+        #set($ulClassAttribute = 'hidden')
+      #end
+      &lt;ul class="$ulClassAttribute"&gt;
         #if ($hasChildrenList)
           ## prepare the children list, in the order given by the ChildrenOrder object in the parent
           #set($childrenListToDisplay = [])
@@ -1083,6 +1108,24 @@ document.observe("xwiki:dom:loaded", function() {
 #set($discard = $xwiki.jsx.use("$xcontext.macro.doc", {'defer' : false, 'minify': false}))
 ## get the parameters, the space to show hierarchy for
 #set($space = "$!xcontext.macro.params.space")
+## get the node value (a document's full name) for which we want to display the path expanded from the root node to the specified node
+## collapsing all the other branches
+#set($openNode = "$!xcontext.macro.params.openNode")
+## we need to recursively get all the ancestors of the specified node @$openNode
+#set($pathToRootNode = [])
+#if(!$openNode.isEmpty() &amp;&amp; $xwiki.exists($openNode))
+  #macro(getPathToRoot $document)
+    #set($documentParent = $document.getParent())
+    #if(!$documentParent.equals(''))
+      #set($discard = $pathToRootNode.add($documentParent))
+      #getPathToRoot($xwiki.getDocument($documentParent))
+    #end
+  #end
+  ##
+  #getPathToRoot($xwiki.getDocument($openNode))
+#end
+## specify if the tree should be collapsed
+#set($collapsed = "$!xcontext.macro.params.collapsed" == 'true' || "$!xcontext.macro.params.collapsed" == 'yes')
 ## the list of documents to exclude, if any
 #set($excludeListString = "$!xcontext.macro.params.excludes")
 #set($excludeListRaw = $excludeListString.split(','))
@@ -2182,9 +2225,142 @@ document.observe("xwiki:dom:loaded", function() {
       <name>documentLanguage</name>
     </property>
   </object>
+  <object>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <name>XWiki.HierarchyMacro</name>
+    <number>13</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>a8625edc-a6fa-4d50-a96f-cfc98892d676</guid>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description>This parameter's value is used to restrict the hierarchy tree from displaying the whole tree expanded, instead it expands only the path from the root node to the specified document's node. 'openNode' parameter's value should specify the full name of the document for which the tree should expand its branch.</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>openNode</name>
+    </property>
+  </object>
+  <object>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <name>XWiki.HierarchyMacro</name>
+    <number>14</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>cbb458e2-88be-45e4-ab07-0127999f8183</guid>
+    <property>
+      <defaultValue>false</defaultValue>
+    </property>
+    <property>
+      <description>This parameter's value is used to collapse the tree of documents.</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>collapsed</name>
+    </property>
+  </object>
   <content>Document that defines the hierarchy macro, which displays and allows to edit the documents hierarchy in a specific space (the standard parent-child relation) along with a special information, children order, which is saved in each parent to allow ordering its children as set by the user when displayed with this macro (and whenever some code which is aware of this information uses it).
 
 Note that the children order information should be used as a relative order, since a document can have additional children which are not present in the order information, as the order information is not updated when the parent parents / children are changed through other means than this macro. In such situations, hierarchy macro uses the stored children order for a document as follows:
+
 * for all the documents which are in the stored order, if they are an actual child of the document, they are displayed, as they appear in the stored order
 * for all the actual children of the document in alphabetic order of their display values (with a special case for the displayTitle), if they have not been yet displayed, they are displayed.
 Thus, children in the stored order will appear first, as dictated by the order, followed by the children for which there is no order information.</content>
