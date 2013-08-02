@@ -1177,8 +1177,6 @@ document.observe("xwiki:dom:loaded", function() {
   #set($where = " where ${where}")
 #end
 #set($sql = "$selectFrom $where $order")
-## Exclude translated docs from results
-#set($where = $where + " and doc.language = ''")
 ## get the results
 #set($resultDocs = $xwiki.search($sql, $paramsList))
 ## prepare the tree
