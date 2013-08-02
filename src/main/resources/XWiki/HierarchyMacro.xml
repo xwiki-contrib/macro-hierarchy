@@ -12,7 +12,7 @@
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <creationDate>1325372400000</creationDate>
-  <date>1375449227000</date>
+  <date>1375452124000</date>
   <contentUpdateDate>1375449227000</contentUpdateDate>
   <version>1.1</version>
   <title>Hierarchy Macro</title>
@@ -990,10 +990,6 @@ document.observe("xwiki:dom:loaded", function() {
     &lt;div class="hierarchynode"&gt;
       ## display the toggle button only if it has children list and we're not in export action (exporting pdf)
       ## actually we should put this button from js, when loading the handlers, since it can only be used with js. FIXME: move
-      #set($classNameArray = ['togglenodehandler', 'hidden', 'open'])
-      #if($pathToRootNode.size() &gt; 0 &amp;&amp; !$pathToRootNode.contains($parent))
-        #set($discard = $classNameArray.addAll(['togglenodehandler']))
-      #end
       #if($showChildrenList &amp;&amp; $context.action != "export")
         #set($classAttributeValue = "togglenodehandler hidden")
         ## if the pathToRootNode array contains at least 1 element then the tree must be collapsed except for one node
