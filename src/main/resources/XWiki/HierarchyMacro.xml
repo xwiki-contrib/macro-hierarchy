@@ -1024,7 +1024,7 @@ document.observe("xwiki:dom:loaded", function() {
       ## don't display link if we're in edit mode since dragging a link is a pain since you'll too often click it. 
       ## Don't display link if doesn't have right to view
       #if(!$editable &amp;&amp; !$reorderable &amp;&amp; $hasRightToView)&lt;a href="${xwiki.getURL($parent)}"&gt;#end
-        &lt;span class="documentlabel"&gt;#evaluate($titleToDisplay)&lt;/span&gt; #if(!$hasRightToView)*#end
+        &lt;span class="documentlabel"&gt;$titleToDisplay&lt;/span&gt; #if(!$hasRightToView)*#end
       #if(!$editable &amp;&amp; !$reorderable &amp;&amp; $hasRightToView)&lt;/a&gt;#end
       ## display reference of this element, to be able to catch it with js and perform the operation
       &lt;input type="hidden" name="docreference" value="$parent" /&gt;
