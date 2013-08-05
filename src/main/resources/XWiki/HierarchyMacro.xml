@@ -12,7 +12,7 @@
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <creationDate>1325372400000</creationDate>
-  <date>1375452124000</date>
+  <date>1375700174000</date>
   <contentUpdateDate>1375449227000</contentUpdateDate>
   <version>1.1</version>
   <title>Hierarchy Macro</title>
@@ -552,13 +552,8 @@ XWiki.ToggleHierarchy = Class.create({
     if (parentLi) {
       var sublist = parentLi.down('ul');
       if (sublist &amp;&amp; sublist.parentNode == parentLi) {
-        if(handler.hasClassName('open') &amp;&amp; !sublist.hasClassName('hidden')){
-          handler.removeClassName('open');
-          sublist.addClassName('hidden');
-        }else if(!handler.hasClassName('open') &amp;&amp; sublist.hasClassName('hidden')){
-          handler.addClassName('open');
-          sublist.removeClassName('hidden');
-        }
+        sublist.toggleClassName('hidden');
+        handler.toggleClassName('open');
       }
     }
   },
@@ -996,10 +991,10 @@ document.observe("xwiki:dom:loaded", function() {
         ## the array holds the path from that node to the root node
         ## if the current processed node, @$parent, is in the array which holds the ancestor hierarchy of the document specified in the @$openNode parameter 
         ## and @$collapsed is false, we display it
-        #if(($pathToRootNode.size() &gt; 0 &amp;&amp; $pathToRootNode.contains($parent)) || !$collapsed)
+        #if(($isOpenNodeMode &amp;&amp; $pathToRootNode.contains($parent)) &amp;&amp; !$collapsed)
           #set($classAttributeValue = "${classAttributeValue} open")
         ## otherwise, if there are no elements in the @$pathToRootNode array and there is no explicit collapse set, then display the nodes expanded
-        #elseif($pathToRootNode.size() &amp;&amp; !$collapsed)
+        #elseif(!$isOpenNodeMode &amp;&amp; !$collapsed)
           #set($classAttributeValue = "${classAttributeValue} open")
         #end
         &lt;span class="$classAttributeValue"&gt;toggle&lt;/span&gt;
@@ -1049,7 +1044,7 @@ document.observe("xwiki:dom:loaded", function() {
     #if ($showChildrenList)
       #set($ulClassAttribute = '')
       ## we hide the sublists if the node is not on the hierarchical path, not contained in the ancestor array of the document @$openNode, or if the collapse is set explicitly
-      #if(($pathToRootNode.size() &gt; 0 &amp;&amp; !$pathToRootNode.contains($parent)) || $collapsed)
+      #if(($isOpenNodeMode &amp;&amp; !$pathToRootNode.contains($parent)) || $collapsed)
         #set($ulClassAttribute = 'hidden')
       #end
       &lt;ul class="$ulClassAttribute"&gt;
@@ -1120,6 +1115,7 @@ document.observe("xwiki:dom:loaded", function() {
   ##
   #getPathToRoot($xwiki.getDocument($openNode))
 #end
+#set($isOpenNodeMode = $pathToRootNode.size() &gt; 0)
 ## specify if the tree should be collapsed
 #set($collapsed = "$!xcontext.macro.params.collapsed" == 'true' || "$!xcontext.macro.params.collapsed" == 'yes')
 ## the list of documents to exclude, if any
