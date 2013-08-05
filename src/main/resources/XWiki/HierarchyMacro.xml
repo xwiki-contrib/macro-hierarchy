@@ -12,7 +12,7 @@
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <creationDate>1325372400000</creationDate>
-  <date>1375700174000</date>
+  <date>1375706231000</date>
   <contentUpdateDate>1375449227000</contentUpdateDate>
   <version>1.1</version>
   <title>Hierarchy Macro</title>
@@ -985,6 +985,12 @@ document.observe("xwiki:dom:loaded", function() {
     &lt;div class="hierarchynode"&gt;
       ## display the toggle button only if it has children list and we're not in export action (exporting pdf)
       ## actually we should put this button from js, when loading the handlers, since it can only be used with js. FIXME: move
+      ##
+      ## we need to mark the opened node, @$openNode, using a CSS class called 'open-node' in order to target it in the DOM tree
+      #set($markOpenNode = '')
+      #if($isOpenNodeMode &amp;&amp; $openNode.equals($parent))
+        #set($markOpenNode = 'open-node')
+      #end
       #if($showChildrenList &amp;&amp; $context.action != "export")
         #set($classAttributeValue = "togglenodehandler hidden")
         ## if the pathToRootNode array contains at least 1 element then the tree must be collapsed except for one node
@@ -992,15 +998,15 @@ document.observe("xwiki:dom:loaded", function() {
         ## if the current processed node, @$parent, is in the array which holds the ancestor hierarchy of the document specified in the @$openNode parameter 
         ## and @$collapsed is false, we display it
         #if(($isOpenNodeMode &amp;&amp; $pathToRootNode.contains($parent)) &amp;&amp; !$collapsed)
-          #set($classAttributeValue = "${classAttributeValue} open")
+          #set($classAttributeValue = "${classAttributeValue} open ${markOpenNode}")
         ## otherwise, if there are no elements in the @$pathToRootNode array and there is no explicit collapse set, then display the nodes expanded
         #elseif(!$isOpenNodeMode &amp;&amp; !$collapsed)
           #set($classAttributeValue = "${classAttributeValue} open")
         #end
-        &lt;span class="$classAttributeValue"&gt;toggle&lt;/span&gt;
+        &lt;span class="${classAttributeValue} ${markOpenNode}"&gt;toggle&lt;/span&gt;
       #else
         ## for other cases, display anyway a toggle span, for layouting purposes
-        &lt;span class="togglenodehandlerplaceholder"&gt;&lt;/span&gt;
+        &lt;span class="togglenodehandlerplaceholder ${markOpenNode}"&gt;&lt;/span&gt;
       #end
       #set($hasRightToView = true)
       #set($titleToDisplay = $displayTitleMap.get($parent))
@@ -1018,7 +1024,7 @@ document.observe("xwiki:dom:loaded", function() {
       #end
       ## don't display link if we're in edit mode since dragging a link is a pain since you'll too often click it. 
       ## Don't display link if doesn't have right to view
-      #if(!$editable &amp;&amp; !$reorderable &amp;&amp; $hasRightToView)&lt;a href="${xwiki.getURL($parent)}"&gt;#end
+      #if(!$editable &amp;&amp; !$reorderable &amp;&amp; $hasRightToView)&lt;a href="${xwiki.getURL($parent)}" class="${markOpenNode}"&gt;#end
         &lt;span class="documentlabel"&gt;#evaluate($titleToDisplay)&lt;/span&gt; #if(!$hasRightToView)*#end
       #if(!$editable &amp;&amp; !$reorderable &amp;&amp; $hasRightToView)&lt;/a&gt;#end
       ## display reference of this element, to be able to catch it with js and perform the operation
