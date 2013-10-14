@@ -41,6 +41,12 @@
     <url>https://github.com/xwiki-contrib/macro-hierarchy.git</url>
     <tag>HEAD</tag>
   </scm>
+  <developers>
+    <developer>
+      <id>lucaa</id>
+      <name>Anca Paula Luca</name>
+    </developer>
+  </developers>
   <distributionManagement>
     <repository>
       <id>xwiki-staging</id>
