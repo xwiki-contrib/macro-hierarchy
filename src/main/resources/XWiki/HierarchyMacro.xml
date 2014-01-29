@@ -1226,7 +1226,7 @@ document.observe("xwiki:dom:loaded", function() {
 #end
 #set($sql = "$selectFrom $where $order")
 ## get the results
-#set($resultDocs = $xwiki.search($sql, $paramsList))
+#set($resultDocs = $services.query.hql($sql).addFilter("hidden").bindValues($paramsList).execute())
 ## prepare the tree
 #set($childrenMap = {})
 ## compute the title to be displayed and put it in the map
