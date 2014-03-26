@@ -11,9 +11,9 @@
   <author>xwiki:XWiki.Admin</author>
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
-  <creationDate>1325372400000</creationDate>
-  <date>1375707070000</date>
-  <contentUpdateDate>1375449227000</contentUpdateDate>
+  <creationDate>1395233286000</creationDate>
+  <date>1395329752000</date>
+  <contentUpdateDate>1395329752000</contentUpdateDate>
   <version>1.1</version>
   <title>Hierarchy Macro</title>
   <template/>
@@ -1124,6 +1124,16 @@ document.observe("xwiki:dom:loaded", function() {
 #set($isOpenNodeMode = $pathToRootNode.size() &gt; 0)
 ## specify if the tree should be collapsed
 #set($collapsed = "$!xcontext.macro.params.collapsed" == 'true' || "$!xcontext.macro.params.collapsed" == 'yes')
+## get the list of spaces that will be excluded
+#set($excludedSpacesString = "$!xcontext.macro.params.excludespaces")
+#set($excludedSpacesRaw = $excludedSpacesString.split(','))
+#set($excludedSpaces = [])
+#foreach($excludedSpacesElt in $excludedSpacesRaw)
+  #set($excludedSpacesElt = $excludedSpacesElt.trim())
+  #if("$!excludedSpacesElt" != "")
+    #set($discard = $excludedSpaces.add($excludedSpacesElt))
+  #end
+#end
 ## the list of documents to exclude, if any
 #set($excludeListString = "$!xcontext.macro.params.excludes")
 #set($excludeListRaw = $excludeListString.split(','))
@@ -1195,6 +1205,22 @@ document.observe("xwiki:dom:loaded", function() {
   #set($where = "doc.space = ?")
   #set($discard = $paramsList.add($space))
 #end
+## exclude spaces
+#if($excludedSpaces.size() &gt; 0)
+  #if($where.length() &gt; 0)
+    set($where = $where + ' and ')
+  #end
+  #set($where = $where + 'doc.space not in (')
+  #foreach($excluded in $excludedSpaces)
+    #if($velocityCount &gt; 1)
+      #set($where = $where + ', ')
+    #end
+    #set($where = $where + '?')
+    #set($discard = $paramsList.add($excluded))
+  #end
+  #set($where = $where + ')')
+#end
+## exclude doccuments
 #if($excludeList.size() &gt; 0)
   #if ($where.length() &gt; 0)
     #set($where = $where + ' and ')
@@ -1226,7 +1252,7 @@ document.observe("xwiki:dom:loaded", function() {
 #end
 #set($sql = "$selectFrom $where $order")
 ## get the results
-#set($resultDocs = $services.query.hql($sql).addFilter("hidden").bindValues($paramsList).execute())
+#set($resultDocs = $xwiki.search($sql, $paramsList))
 ## prepare the tree
 #set($childrenMap = {})
 ## compute the title to be displayed and put it in the map
@@ -1243,7 +1269,8 @@ document.observe("xwiki:dom:loaded", function() {
   ## filter the docs in the passed space and filter out the excludes from parents
   #set($currentParent = $resultDoc.get(1))
   #set($currentParentReference = $services.model.resolveDocument($currentParent, 'currentmixed', $currentReference))
-  #if("$!currentParent" != "" &amp;&amp; !$excludeList.contains($currentParent) &amp;&amp; $currentParentReference.wikiReference.name.equals($xcontext.wiki) &amp;&amp; ("$!space" == "" || $currentParentReference.lastSpaceReference.name.equals($space)))
+  #set($currentParentSpace = $xwiki.getDocument("$currentParent").space)
+  #if("$!currentParent" != "" &amp;&amp; !$excludeList.contains($currentParent) &amp;&amp; !$excludedSpaces.contains($currentParentSpace) &amp;&amp; $currentParentReference.wikiReference.name.equals($xcontext.wiki) &amp;&amp; ("$!space" == "" || $currentParentReference.lastSpaceReference.name.equals($space)))
     ## it's not an orphan, it has non-excluded parent in the current wiki and in the passed space
     ## put it in his parent's children list
     ## we'll get the parent by re-serializing the resolved reference, 
@@ -2353,6 +2380,72 @@ document.observe("xwiki:dom:loaded", function() {
     </property>
     <property>
       <name>collapsed</name>
+    </property>
+  </object>
+  <object>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <name>XWiki.HierarchyMacro</name>
+    <number>15</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>be9da2fd-7fd9-44a3-84af-4736b631f069</guid>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description>Comma separated list of spaces to exclude from the hierarchy display.</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>excludespaces</name>
     </property>
   </object>
   <content>Document that defines the hierarchy macro, which displays and allows to edit the documents hierarchy in a specific space (the standard parent-child relation) along with a special information, children order, which is saved in each parent to allow ordering its children as set by the user when displayed with this macro (and whenever some code which is aware of this information uses it).
