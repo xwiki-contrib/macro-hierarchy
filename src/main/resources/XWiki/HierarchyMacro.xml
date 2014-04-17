@@ -12,8 +12,8 @@
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <creationDate>1395233286000</creationDate>
-  <date>1395329752000</date>
-  <contentUpdateDate>1395329752000</contentUpdateDate>
+  <date>1397731490000</date>
+  <contentUpdateDate>1397731490000</contentUpdateDate>
   <version>1.1</version>
   <title>Hierarchy Macro</title>
   <template/>
@@ -1145,6 +1145,16 @@ document.observe("xwiki:dom:loaded", function() {
     #set($discard = $excludeList.add($excludedElt))
   #end
 #end
+## the list of the doccuments that will be displayed
+#set($displayedDocumentsString = "$!xcontext.macro.params.doclist")
+#set($displayedDocumentsRaw = $displayedDocumentsString.split(','))
+#set($displayedDocuments = [])
+#foreach($displayedDocElt in $displayedDocumentsRaw)
+  #set($displayedDocElt = $displayedDocElt.trim())
+  #if("$!displayedDocElt" != "")
+    #set($discard = $displayedDocuments.add($displayedDocElt))
+  #end
+#end
 ## whether only roots of the tree should be shown or not
 #set($onlyRoots = false)
 #if("$!xcontext.macro.params.onlyroots" == "true" || "$!xcontext.macro.params.onlyroots" == "yes")
@@ -1235,6 +1245,7 @@ document.observe("xwiki:dom:loaded", function() {
   #end
   #set($where = $where + ')')
 #end
+
 #set($docLanguage = "$!xcontext.macro.params.documentLanguage")
 #if($docLanguage != '')
   #if ($where.length() &gt; 0)
@@ -1252,7 +1263,18 @@ document.observe("xwiki:dom:loaded", function() {
 #end
 #set($sql = "$selectFrom $where $order")
 ## get the results
-#set($resultDocs = $xwiki.search($sql, $paramsList))
+#if("$!displayedDocuments" != "[]")
+  #set($displayedDocumentsDoc = [])
+  #foreach($element in $displayedDocuments)
+    #set($buffer = [])
+    #set($discard = $buffer.add("$!xwiki.getDocument($element)"))
+    #set($discard = $buffer.add("$!xwiki.getDocument($element).parent"))
+    #set($discard = $displayedDocumentsDoc.add($buffer))
+  #end
+  #set($resultDocs = $displayedDocumentsDoc)
+#else
+  #set($resultDocs = $xwiki.search($sql, $paramsList))
+#end
 ## prepare the tree
 #set($childrenMap = {})
 ## compute the title to be displayed and put it in the map
@@ -1270,7 +1292,7 @@ document.observe("xwiki:dom:loaded", function() {
   #set($currentParent = $resultDoc.get(1))
   #set($currentParentReference = $services.model.resolveDocument($currentParent, 'currentmixed', $currentReference))
   #set($currentParentSpace = $xwiki.getDocument("$currentParent").space)
-  #if("$!currentParent" != "" &amp;&amp; !$excludeList.contains($currentParent) &amp;&amp; !$excludedSpaces.contains($currentParentSpace) &amp;&amp; $currentParentReference.wikiReference.name.equals($xcontext.wiki) &amp;&amp; ("$!space" == "" || $currentParentReference.lastSpaceReference.name.equals($space)))
+  #if("$!currentParent" != "" &amp;&amp; !$excludeList.contains($currentParent) &amp;&amp; !$excludedSpaces.contains($currentParentSpace) &amp;&amp; ($displayedDocuments.contains($currentParent) || $displayedDocuments.size() == 0 ) &amp;&amp; $currentParentReference.wikiReference.name.equals($xcontext.wiki) &amp;&amp; ("$!space" == "" || $currentParentReference.lastSpaceReference.name.equals($space)))
     ## it's not an orphan, it has non-excluded parent in the current wiki and in the passed space
     ## put it in his parent's children list
     ## we'll get the parent by re-serializing the resolved reference, 
@@ -2446,6 +2468,72 @@ document.observe("xwiki:dom:loaded", function() {
     </property>
     <property>
       <name>excludespaces</name>
+    </property>
+  </object>
+  <object>
+    <class>
+      <name>XWiki.WikiMacroParameterClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <defaultValue>
+        <disabled>0</disabled>
+        <name>defaultValue</name>
+        <number>4</number>
+        <prettyName>Parameter default value</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </defaultValue>
+      <description>
+        <disabled>0</disabled>
+        <name>description</name>
+        <number>2</number>
+        <prettyName>Parameter description</prettyName>
+        <rows>5</rows>
+        <size>40</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </description>
+      <mandatory>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>mandatory</name>
+        <number>3</number>
+        <prettyName>Parameter mandatory</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </mandatory>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Parameter name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+    </class>
+    <name>XWiki.HierarchyMacro</name>
+    <number>16</number>
+    <className>XWiki.WikiMacroParameterClass</className>
+    <guid>2b8d15ab-08b2-42ec-9171-1dab1ab940da</guid>
+    <property>
+      <defaultValue/>
+    </property>
+    <property>
+      <description>Document list that will be displayed</description>
+    </property>
+    <property>
+      <mandatory>0</mandatory>
+    </property>
+    <property>
+      <name>doclist</name>
     </property>
   </object>
   <content>Document that defines the hierarchy macro, which displays and allows to edit the documents hierarchy in a specific space (the standard parent-child relation) along with a special information, children order, which is saved in each parent to allow ordering its children as set by the user when displayed with this macro (and whenever some code which is aware of this information uses it).
