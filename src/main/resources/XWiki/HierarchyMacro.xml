@@ -1273,7 +1273,7 @@ document.observe("xwiki:dom:loaded", function() {
   #end
   #set($resultDocs = $displayedDocumentsDoc)
 #else
-  #set($resultDocs = $xwiki.search($sql, $paramsList))
+  #set($resultDocs = $services.query.hql($sql).addFilter("hidden").bindValues($paramsList).execute())
 #end
 ## prepare the tree
 #set($childrenMap = {})
