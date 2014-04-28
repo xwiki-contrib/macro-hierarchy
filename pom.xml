@@ -66,6 +66,17 @@
     </repository>
   </distributionManagement>
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <!-- Try releasing with release plugin 2.5 so that we can actually release with git 1.9 
+               (seems there are a log of bugs, especially http://jira.codehaus.org/browse/MRELEASE-812 ) -->
+          <version>2.5</version>
+        </plugin>
+      </plugins> 
+    </pluginManagement>  
     <extensions>
       <extension>
         <groupId>org.xwiki.commons</groupId>
