@@ -44,7 +44,18 @@
   <developers>
     <developer>
       <id>lucaa</id>
-      <name>Anca Paula Luca</name>
+      <name>Anca Luca</name>
+      <organization>XWiki SAS</organization>
+    </developer>
+    <developer>
+      <id>pcojan</id>
+      <name>Paul Cojan</name>
+      <organization>XWiki SAS</organization>
+    </developer>
+    <developer>
+      <id>mstaicu</id>
+      <name>Mircea Staicu</name>
+      <organization>XWiki SAS</organization>
     </developer>
   </developers>
   <distributionManagement>
