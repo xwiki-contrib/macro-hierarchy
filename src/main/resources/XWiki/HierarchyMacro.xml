@@ -12,8 +12,8 @@
   <customClass/>
   <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
   <creationDate>1395233286000</creationDate>
-  <date>1397731490000</date>
-  <contentUpdateDate>1397731490000</contentUpdateDate>
+  <date>1398679498000</date>
+  <contentUpdateDate>1398679498000</contentUpdateDate>
   <version>1.1</version>
   <title>Hierarchy Macro</title>
   <template/>
@@ -1267,8 +1267,16 @@ document.observe("xwiki:dom:loaded", function() {
   #set($displayedDocumentsDoc = [])
   #foreach($element in $displayedDocuments)
     #set($buffer = [])
-    #set($discard = $buffer.add("$!xwiki.getDocument($element)"))
-    #set($discard = $buffer.add("$!xwiki.getDocument($element).parent"))
+    #set($bufferDoc = $xwiki.getDocument($element))
+    #set($discard = $buffer.add("$!bufferDoc"))
+    #set($discard = $buffer.add("$!bufferDoc.parent"))
+    #if($displayValue == 'fullName') 
+      #set($discard = $buffer.add("$!bufferDoc.fullName"))
+    #elseif($displayValue == 'name') 
+      #set($discard = $buffer.add("$!bufferDoc.name"))
+    #elseif($displayValue == 'title') 
+      #set($discard = $buffer.add("$!bufferDoc.title"))
+    #end
     #set($discard = $displayedDocumentsDoc.add($buffer))
   #end
   #set($resultDocs = $displayedDocumentsDoc)
