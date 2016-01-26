@@ -1284,7 +1284,7 @@ document.observe("xwiki:dom:loaded", function() {
   #set($displayHidden = "$!xcontext.macro.params.displayHidden")
   #set($query = $services.query.hql($sql).bindValues($paramsList))
   #if($displayHidden != "true")
-  #set($query = $query.addFilter("hidden"))
+    #set($query = $query.addFilter("hidden"))
   #end
   #set($resultDocs = $query.execute())
 #end
